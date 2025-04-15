@@ -1,0 +1,17 @@
+torch==1.13.1
+torchvision==0.14.1
+torchaudio==0.13.1
+
+# 科学计算库
+numpy==1.21.2
+
+# 图像处理
+Pillow==9.0.1
+
+# 可视化
+matplotlib==3.5.1
+
+# 配置文件解析
+PyYAML==5.4.1
+tqdm==4.64.1
+scikit-learn==1.0.2
