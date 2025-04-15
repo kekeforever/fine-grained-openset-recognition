@@ -1,0 +1,35 @@
+# config/config.yaml
+dataset:
+  name: "CUB-200-2011"
+  data_dir: "dataset/CUB_200_2011"
+  # Number of known classes used for training (rest will be treated as unknown for open-set testing)
+  known_classes: 150  
+  image_size: 224
+  batch_size: 64
+  num_workers: 4
+
+training:
+  epochs_pretrain: 100
+  epochs_main: 50
+  learning_rate: 0.001
+  learning_rate_pretrain: 0.0005
+  weight_decay: 1e-4
+  # Loss weight for open-set (energy) loss component
+  open_set_loss_weight: 0.5  
+  # Fraction of synthetic unknown samples per batch (relative to real batch size)
+  synthetic_unknown_ratio: 1.0  
+  # Max number of synthetic tail samples to add per batch
+  synthetic_tail_per_batch: 2  
+
+model:
+  backbone: "resnet50"
+  pretrained_backbone_path: "checkpoints/backbone_pretrained.pth"
+  feature_dim: 2048    # dimension of backbone output
+  attention_dim: 1024  # dimension of intermediate feature for attention
+  num_classes: 150     # number of known classes for classification
+  generator_type: "diffusion"  # or "gan"
+  generator_ckpt: "checkpoints/generator.pth"
+
+# Logging and output
+output_dir: "logs/"
+save_checkpoint_dir: "checkpoints/"
