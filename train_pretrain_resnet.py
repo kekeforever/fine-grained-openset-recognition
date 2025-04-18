@@ -1,4 +1,3 @@
-# train_simclr_full.py
 import os
 import torch
 import torch.nn as nn
@@ -62,7 +61,7 @@ def nt_xent_loss(features, temperature):
     full = torch.cat([f1, f2], dim=0)
     sim_matrix = torch.matmul(full, full.T) / temperature
     mask = torch.eye(2 * B, device=features.device).bool()
-    sim_matrix.masked_fill_(mask, -1e9)
+    sim_matrix.masked_fill_(mask, -1e4)
     pos_idx = torch.cat([torch.arange(B, 2 * B), torch.arange(0, B)]).to(features.device)
     numerator = torch.exp(sim_matrix[torch.arange(2 * B), pos_idx])
     denominator = torch.exp(sim_matrix).sum(dim=1)
@@ -74,7 +73,11 @@ def nt_xent_loss(features, temperature):
 def extract_features_labels(dataloader, model):
     model.eval()
     features, labels = [], []
-    for imgs, _, lbls in dataloader:
+    for batch in dataloader:
+        if len(batch) == 3:
+            imgs, _, lbls = batch
+        else:
+            imgs, lbls = batch
         imgs = imgs.cuda()
         feats = model(imgs)
         feats = nn.functional.normalize(feats, dim=1)
@@ -110,7 +113,7 @@ def main():
     data_dir = "dataset/CUB_200_2011/images"
     save_dir = "checkpoints"
     os.makedirs(save_dir, exist_ok=True)
-    batch_size = 256
+    batch_size = 128
     epochs = 200
     lr = 5e-4
     temperature = 0.2
@@ -127,7 +130,7 @@ def main():
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, drop_last=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
-    backbone = models.resnet101(pretrained=False)
+    backbone = models.resnet101(weights=None)
     backbone.fc = nn.Identity()
     projection_head = ProjectionHead()
     model = nn.Sequential(backbone, projection_head).cuda()
